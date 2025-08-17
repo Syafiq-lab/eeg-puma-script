@@ -18,3 +18,21 @@
 [Mon 08/18/2025  1:16:32.44] exitcode=0 
 [Mon 08/18/2025  2:08:31.06] launcher: starting uploader_watch.ps1 -Mode once 
 [Mon 08/18/2025  2:08:32.35] exitcode=0 
+2025-08-18T02:22:28 [BOOT] uploader_watch.ps1 starting (Mode=watch; PID=5320; PSVersion=5.1.26100.4768)
+2025-08-18T07:11:45 [BOOT] uploader_watch.ps1 starting (Mode=once; PID=30988; PSVersion=5.1.26100.4768)
+2025-08-18T07:11:55 [BOOT] uploader_watch.ps1 starting (Mode=once; PID=25276; PSVersion=5.1.26100.4768)
+2025-08-18T07:12:05 [BOOT] uploader_watch.ps1 starting (Mode=once; PID=5032; PSVersion=5.1.26100.4768)
+2025-08-18T07:12:15 [BOOT] uploader_watch.ps1 starting (Mode=once; PID=31592; PSVersion=5.1.26100.4768)
+2025-08-18T07:12:25 [BOOT] uploader_watch.ps1 starting (Mode=once; PID=32872; PSVersion=5.1.26100.4768)
+2025-08-18T07:12:35 [BOOT] uploader_watch.ps1 starting (Mode=once; PID=10764; PSVersion=5.1.26100.4768)
+2025-08-18T07:12:45 [BOOT] uploader_watch.ps1 starting (Mode=once; PID=24500; PSVersion=5.1.26100.4768)
+2025-08-18T07:12:55 [BOOT] uploader_watch.ps1 starting (Mode=once; PID=35244; PSVersion=5.1.26100.4768)
+2025-08-18T07:13:05 [BOOT] uploader_watch.ps1 starting (Mode=once; PID=30332; PSVersion=5.1.26100.4768)
+2025-08-18T07:13:15 [BOOT] uploader_watch.ps1 starting (Mode=once; PID=31816; PSVersion=5.1.26100.4768)
+2025-08-18T07:13:25 [BOOT] uploader_watch.ps1 starting (Mode=once; PID=23092; PSVersion=5.1.26100.4768)
+2025-08-18T07:13:35 [BOOT] uploader_watch.ps1 starting (Mode=once; PID=32852; PSVersion=5.1.26100.4768)
+[Mon 08/18/2025  7:16:49.64] launcher: starting uploader_watch.ps1 -Mode once 
+[Mon 08/18/2025  7:16:50.39] exitcode=0 
+2025-08-18T07:17:47 [BOOT] uploader_watch.ps1 starting (Mode=once; PID=17688; PSVersion=5.1.26100.4768)
+2025-08-18T07:17:57 [BOOT] uploader_watch.ps1 starting (Mode=once; PID=25576; PSVersion=5.1.26100.4768)
+2025-08-18T07:18:07 [BOOT] uploader_watch.ps1 starting (Mode=once; PID=33112; PSVersion=5.1.26100.4768)
