@@ -1,0 +1,20 @@
+﻿2025-08-17T14:41:22 [BOOT] uploader_watch.ps1 starting (Mode=watch; PID=19816; PSVersion=5.1.26100.4768)
+[Sun 08/17/2025 14:43:10.77] launcher: starting uploader_watch.ps1 -Mode once 
+[Sun 08/17/2025 14:43:11.41] exitcode=0 
+2025-08-17T14:45:21 [BOOT] uploader_watch.ps1 starting (Mode=watch; PID=22020; PSVersion=5.1.26100.4768)
+[Mon 08/18/2025  0:22:56.78] launcher: starting uploader_watch.ps1 -Mode once 
+[Mon 08/18/2025  0:22:58.14] exitcode=0 
+[Mon 08/18/2025  0:23:31.26] launcher: starting uploader_watch.ps1 -Mode once 
+[Mon 08/18/2025  0:23:31.91] exitcode=0 
+[Mon 08/18/2025  0:23:38.79] launcher: starting uploader_watch.ps1 -Mode once 
+[Mon 08/18/2025  0:23:39.49] exitcode=0 
+[Mon 08/18/2025  0:23:47.38] launcher: starting uploader_watch.ps1 -Mode once 
+[Mon 08/18/2025  0:23:48.04] exitcode=0 
+[Mon 08/18/2025  0:23:55.57] launcher: starting uploader_watch.ps1 -Mode once 
+[Mon 08/18/2025  0:23:56.20] exitcode=0 
+[Mon 08/18/2025  0:24:08.99] launcher: starting uploader_watch.ps1 -Mode once 
+[Mon 08/18/2025  0:24:09.72] exitcode=0 
+[Mon 08/18/2025  1:16:31.32] launcher: starting uploader_watch.ps1 -Mode once 
+[Mon 08/18/2025  1:16:32.44] exitcode=0 
+[Mon 08/18/2025  2:08:31.06] launcher: starting uploader_watch.ps1 -Mode once 
+[Mon 08/18/2025  2:08:32.35] exitcode=0 
