@@ -2,25 +2,20 @@
   "watchDir": "C:\\Media\\incoming",
   "successDir": "processed",
   "failedDir": "failed",
+
   "serverBase": "http://localhost:3000",
-  "endpoint": "/api/media/upload-many",
+  "authorizePath": "/api/media/authorize",
   "authToken": "",
-  "includeExt": [
-    ".mp4",
-    ".mov",
-    ".m4v",
-    ".webm",
-    ".avi",
-    ".mkv",
-    ".jpg",
-    ".jpeg",
-    ".png"
-  ],
+
+  "includeExt": [".mp4",".mov",".m4v",".webm",".avi",".mkv",".jpg",".jpeg",".png"],
   "filenamePattern": "^(?<id>[A-Z0-9]{3}-[A-Z0-9]{3})(?:[ _()\\-].+)?\\.[^.]+$",
   "filenamePatternFlags": "i",
   "recursive": false,
+
+  "storePrefix": "uploads",
+
   "sendMode": "batch",
-  "batchSeconds": 5,
+  "batchSeconds": 1,
   "heartbeatSeconds": 10,
   "pollFallback": true,
   "initialScan": true,

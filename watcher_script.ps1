@@ -20,7 +20,7 @@ function Load-Config {
   if (-not $cfg.watchDir) { throw "Config must have 'watchDir'" }
   if ($null -eq $cfg.recursive)       { $cfg | Add-Member recursive        $false }
   if ($null -eq $cfg.initialScan)     { $cfg | Add-Member initialScan      $true }
-  if (-not $cfg.batchSeconds)         { $cfg | Add-Member batchSeconds     5 }
+  if (-not $cfg.batchSeconds)         { $cfg | Add-Member batchSeconds     1 }
   if ($null -eq $cfg.pollFallback)    { $cfg | Add-Member pollFallback     $true }
   if (-not $cfg.includeExt)           { $cfg | Add-Member includeExt       @(".mp4",".mov",".m4v",".webm",".avi",".mkv") }
   if (-not $cfg.filenamePattern)      { $cfg | Add-Member filenamePattern  ".*" }
