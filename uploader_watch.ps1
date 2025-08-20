@@ -10,6 +10,47 @@ $ConfirmPreference = 'None'  # suppress any implicit confirmation prompts
 # One log in runner folder for manual/once runs
 $LogPath = Join-Path $PSScriptRoot 'manual-upload.log'
 
+function Try-LoadHttpClient {
+  try { Add-Type -AssemblyName System.Net.Http -ErrorAction Stop } catch {
+    try { [void][System.Reflection.Assembly]::Load("System.Net.Http") } catch {}
+  }
+  return ([Type]::GetType("System.Net.Http.HttpClient, System.Net.Http") -ne $null) -and
+         ([Type]::GetType("System.Net.Http.HttpClientHandler, System.Net.Http") -ne $null)
+}
+
+function Parse-UploadResponse {
+  param([string]$Body, [string[]]$Files)
+  try {
+    $json = $Body | ConvertFrom-Json
+    if ($json.status -eq "success" -and $json.data) {
+      $data = $json.data
+      $uploaded = @()
+      $failed = @()
+
+      if ($data.uploadedOriginalNames) {
+        $uploaded = @($data.uploadedOriginalNames)
+      }
+      if ($data.failedOriginalNames) {
+        $failed = @($data.failedOriginalNames)
+      }
+
+      $result = @{
+        ok = [bool]$data.ok
+        uploaded = $uploaded
+        failed = $failed
+      }
+      return $result
+    } else {
+      Write-Log ("Server returned error status in response: {0}" -f $Body) "ERROR"
+      return @{ ok = $false; uploaded = @(); failed = ($Files | ForEach-Object { Split-Path $_ -Leaf }) }
+    }
+  } catch {
+    Write-Log ("Failed to parse upload response JSON: {0}" -f $_.Exception.Message) "ERROR"
+    return @{ ok = $false; uploaded = @(); failed = ($Files | ForEach-Object { Split-Path $_ -Leaf }) }
+  }
+}
+
+
 function Ensure-Dir {
   param([string]$Dir)
   if (-not (Test-Path -LiteralPath $Dir -PathType Container)) {
@@ -77,12 +118,18 @@ function Join-BaseUri {
 function Send-MultipartHttpClient {
   param([object]$Cfg, [string[]]$Files)
   $uri = Join-BaseUri -Base ([string]$Cfg.serverBase) -Endpoint ([string]$Cfg.endpoint)
+  Write-Log ("Attempting HTTP upload to: {0}" -f $uri)
+
   $client = $null; $content = $null
   try {
     $client  = New-HttpClient -Cfg $Cfg
-    if ($client -eq $null) { return $null } # signal fallback
+    if ($client -eq $null) {
+      Write-Log "HttpClient not available, will fallback to WebRequest"
+      return $null
+    }
     $content = New-Object System.Net.Http.MultipartFormDataContent
     foreach ($f in $Files) {
+      Write-Log ("Adding file to upload: {0}" -f $f)
       $bytes = [System.IO.File]::ReadAllBytes($f)
       $fileContent = New-Object System.Net.Http.ByteArrayContent($bytes)
       $fileContent.Headers.ContentType = New-Object System.Net.Http.Headers.MediaTypeHeaderValue("application/octet-stream")
@@ -90,12 +137,19 @@ function Send-MultipartHttpClient {
     }
     $response = $client.PostAsync($uri, $content).GetAwaiter().GetResult()
     $body = $response.Content.ReadAsStringAsync().GetAwaiter().GetResult()
+    Write-Log ("HTTP Status: {0}, Response: {1}" -f $response.StatusCode, $body)
     return @{ IsSuccess = [bool]$response.IsSuccessStatusCode; Body = $body }
+  } catch {
+    Write-Log ("HTTP Client Exception: {0}" -f $_.Exception.Message) "ERROR"
+    throw
   } finally { if ($content) { $content.Dispose() }; if ($client) { $client.Dispose() } }
 }
+
 function Send-MultipartHttpWebRequest {
   param([object]$Cfg, [string[]]$Files)
   $uri = Join-BaseUri -Base ([string]$Cfg.serverBase) -Endpoint ([string]$Cfg.endpoint)
+  Write-Log ("Attempting WebRequest upload to: {0}" -f $uri)
+
   $boundary = "---------------------------" + ([Guid]::NewGuid().ToString("N"))
   $nl = "`r`n"
   $req = [System.Net.HttpWebRequest]::Create($uri)
@@ -106,6 +160,7 @@ function Send-MultipartHttpWebRequest {
   $stream = $req.GetRequestStream()
   try {
     foreach ($f in $Files) {
+      Write-Log ("Adding file to WebRequest: {0}" -f $f)
       $name = [System.IO.Path]::GetFileName($f)
       $hdr = "--$boundary$nl" +
              "Content-Disposition: form-data; name=`"file`"; filename=`"$name`"$nl" +
@@ -134,40 +189,45 @@ function Send-MultipartHttpWebRequest {
     $resp = $_.Exception.Response
     if ($resp -ne $null) {
       $s = $resp.GetResponseStream(); $sr = New-Object System.IO.StreamReader($s); $body = $sr.ReadToEnd(); $sr.Close(); $s.Close(); $resp.Close()
+      Write-Log ("WebRequest Error Response: {0}" -f $body) "ERROR"
       return @{ IsSuccess = $false; Body = $body }
     } else {
+      Write-Log ("WebRequest Exception: {0}" -f $_.Exception.Message) "ERROR"
       return @{ IsSuccess = $false; Body = $_.Exception.Message }
     }
   }
 }
-function Parse-UploadResponse {
-  param([string]$Body, [string[]]$Files)
-  try {
-    $parsed = $Body | ConvertFrom-Json
-    if ($parsed -is [System.Collections.IEnumerable]) {
-      $uploaded = @(); foreach ($n in $parsed) { $uploaded += [string]$n }
-      return @{ ok = $true; uploaded = $uploaded; failed = @() }
-    } else {
-      $uploaded = @(); if ($parsed.uploaded) { foreach ($n in $parsed.uploaded) { $uploaded += [string]$n } }
-      $failed   = @(); if ($parsed.failed)   { foreach ($n in $parsed.failed)   { $failed   += [string]$n } }
-      if (($uploaded.Count -eq 0) -and ($failed.Count -eq 0)) { $uploaded = ($Files | ForEach-Object { Split-Path $_ -Leaf }) }
-      return @{ ok = $true; uploaded = $uploaded; failed = $failed }
-    }
-  } catch {
-    return @{ ok = $true; uploaded = ($Files | ForEach-Object { Split-Path $_ -Leaf }); failed = @() }
-  }
-}
+
 function Send-Multipart {
   param([object]$Cfg, [string[]]$Files)
   if (-not $Files -or $Files.Count -eq 0) { return @{ ok = $true; uploaded = @(); failed = @() } }
-  $r = Send-MultipartHttpClient -Cfg $Cfg -Files $Files
-  if ($null -ne $r) {
-    if (-not $r.IsSuccess) { return @{ ok = $false; uploaded = @(); failed = ($Files | ForEach-Object { Split-Path $_ -Leaf }) } }
-    return (Parse-UploadResponse -Body $r.Body -Files $Files)
+
+  try {
+    $r = Send-MultipartHttpClient -Cfg $Cfg -Files $Files
+    if ($null -ne $r) {
+      if (-not $r.IsSuccess) {
+        Write-Log ("Upload failed via HttpClient") "ERROR"
+        return @{ ok = $false; uploaded = @(); failed = ($Files | ForEach-Object { Split-Path $_ -Leaf }) }
+      }
+      Write-Log ("Upload succeeded via HttpClient")
+      return (Parse-UploadResponse -Body $r.Body -Files $Files)
+    }
+  } catch {
+    Write-Log ("HttpClient failed, trying WebRequest: {0}" -f $_.Exception.Message) "ERROR"
   }
-  $r = Send-MultipartHttpWebRequest -Cfg $Cfg -Files $Files
-  if (-not $r.IsSuccess) { return @{ ok = $false; uploaded = @(); failed = ($Files | ForEach-Object { Split-Path $_ -Leaf }) } }
-  return (Parse-UploadResponse -Body $r.Body -Files $Files)
+
+  try {
+    $r = Send-MultipartHttpWebRequest -Cfg $Cfg -Files $Files
+    if (-not $r.IsSuccess) {
+      Write-Log ("Upload failed via WebRequest") "ERROR"
+      return @{ ok = $false; uploaded = @(); failed = ($Files | ForEach-Object { Split-Path $_ -Leaf }) }
+    }
+    Write-Log ("Upload succeeded via WebRequest")
+    return (Parse-UploadResponse -Body $r.Body -Files $Files)
+  } catch {
+    Write-Log ("WebRequest also failed: {0}" -f $_.Exception.Message) "ERROR"
+    return @{ ok = $false; uploaded = @(); failed = ($Files | ForEach-Object { Split-Path $_ -Leaf }) }
+  }
 }
 
 # Selection + moves
@@ -267,10 +327,15 @@ if (-not $res.ok) {
 $uploaded = @()
 $failed   = @()
 try {
-  if ($res -and $res.PSObject.Properties['uploaded'] -and $res.uploaded) { $uploaded = @($res.uploaded) }
-  if ($res -and $res.PSObject.Properties['failed']   -and $res.failed)   { $failed   = @($res.failed)   }
-} catch {}
+  if ($res -and $res.uploaded) {
+    $uploaded = [array]$res.uploaded
+  }
+  if ($res -and $res.failed) {
+    $failed = [array]$res.failed
+  }
+} catch {
+  Write-Log ("Error extracting results: {0}" -f $_.Exception.Message) "ERROR"
+}
 
 Move-Result -AllFiles $ready -Uploaded $uploaded -Failed $failed -SuccessDir $SuccessDir -FailedDir $FailedDir
 Write-Log ("manual-upload: done (uploaded={0}; failed={1})" -f $uploaded.Count, $failed.Count)
-exit 0

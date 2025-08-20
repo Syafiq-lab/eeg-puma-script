@@ -11,11 +11,14 @@
     ".m4v",
     ".webm",
     ".avi",
-    ".mkv"
+    ".mkv",
+    ".jpg",
+    ".jpeg",
+    ".png"
   ],
-  "filenamePattern": "^(?<id>[A-Z0-9]{3}-[A-Z0-9]{3})(?:[ _()\\-].+)?\\.(mp4|mov|m4v|webm|avi|mkv)$",
+  "filenamePattern": "^(?<id>[A-Z0-9]{3}-[A-Z0-9]{3})(?:[ _()\\-].+)?\\.[^.]+$",
   "filenamePatternFlags": "i",
-  "recursive": true,
+  "recursive": false,
   "sendMode": "batch",
   "batchSeconds": 5,
   "heartbeatSeconds": 10,
