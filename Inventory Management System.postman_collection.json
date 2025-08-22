@@ -1,0 +1,1179 @@
+{
+	"info": {
+		"_postman_id": "71d1f0fe-77eb-422e-90b8-5b8c197977cf",
+		"name": "Inventory Management System",
+		"description": "This API is designed to manage product inventory efficiently. It provides endpoints for creating, updating, retrieving, and deleting product data, as well as managing categories, suppliers, and inventory transactions.EndFragment",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "44941922",
+		"_collection_link": "https://amirahamran.postman.co/workspace/Amirah-Amran's-Workspace~d97768c5-abd5-4412-8a08-e0d7181cf3f5/collection/44941922-71d1f0fe-77eb-422e-90b8-5b8c197977cf?action=share&source=collection_link&creator=44941922"
+	},
+	"item": [
+		{
+			"name": "Product",
+			"item": [
+				{
+					"name": "Create product",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful POST request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Salted Caramel Cream Puff\",\n  \"sku\": \"OB-CF-6-ALL\",\n  \"unitPrice\": 4.00,\n  \"currentStock\": 50,\n  \"reorderLevel\": 20,\n  \"categoryId\": 4,\n  \"supplierId\": 2\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/product",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"product"
+							]
+						},
+						"description": "### POST Request to Create a Product\n\nThis is a **POST** request to the endpoint `http://localhost:8080/api/product`, which is used to create a new product in the system. The request submits data in JSON format within the request body.\n\n#### Expected Response:\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code, indicating that the product has been successfully created.."
+					},
+					"response": [
+						{
+							"name": "Create product",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"Salted Caramel Cream Puff\",\n  \"sku\": \"OB-CF-6-ALL\",\n  \"unitPrice\": 4.00,\n  \"currentStock\": 50,\n  \"reorderLevel\": 20,\n  \"categoryId\": 4,\n  \"supplierId\": 2\n}\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/product",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"product"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 21 Aug 2025 12:56:25 GMT"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=60"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"productId\": 29,\n    \"name\": \"Salted Caramel Cream Puff\",\n    \"sku\": \"OB-CF-6-ALL\",\n    \"category\": {\n        \"id\": 4,\n        \"name\": \"Combo Box\",\n        \"description\": \"Mixed boxes and combo sets\"\n    },\n    \"supplier\": {\n        \"id\": 2,\n        \"companyName\": \"Golden Flour Supplies\",\n        \"contactPerson\": \"Tan Wei Ming\",\n        \"email\": \"weiming@goldenflour.com\",\n        \"phone\": \"017-8886655\"\n    },\n    \"unitPrice\": 4,\n    \"currentStock\": 50,\n    \"reorderLevel\": 20\n}"
+						}
+					]
+				},
+				{
+					"name": "Update product",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful PUT request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 204]);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"productId\": 1,\n  \"name\": \"Box of 6 – All Flavours\",\n  \"sku\": \"OB-CF-6-ALL\",\n  \"unitPrice\": 21.00,\n  \"currentStock\": 105,\n  \"reorderLevel\": 20,\n  \"categoryId\": 4,\n  \"supplierId\": 2\n}\n\n\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/product/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"product",
+								"1"
+							]
+						},
+						"description": "## PUT Request to Update Product\n\nThis is a **PUT** request used to update an existing product in the system. The request is directed at the endpoint `http://localhost:8080/api/product/1`, where `1` is the identifier of the product you wish to modify.\n\n### Purpose\n\nThe purpose of this request is to overwrite the details of a specific product identified by its ID. This is typically used after a product has been created with a **POST** request, allowing you to modify its attributes as needed.\n\n### Request Body Format\n\nThe request body must be in JSON format and should include the following parameters:\n\n- **productId** (integer): The unique identifier for the product.\n    \n- **name** (string): The name of the product.\n    \n- **sku** (string): The stock-keeping unit identifier for the product.\n    \n- **unitPrice** (number): The price per unit of the product.\n    \n- **currentStock** (integer): The current stock level of the product.\n    \n- **reorderLevel** (integer): The stock level at which the product should be reordered.\n    \n- **categoryId** (integer): The identifier for the category to which the product belongs.\n    \n- **supplierId** (integer): The identifier for the supplier of the product.\n    \n\n### Example Request Body\n\n``` json\n{\n  \"productId\": 1,\n  \"name\": \"Box of 6 – All Flavours\",\n  \"sku\": \"OB-CF-6-ALL\",\n  \"unitPrice\": 21,\n  \"currentStock\": 105,\n  \"reorderLevel\": 20,\n  \"categoryId\": 4,\n  \"supplierId\": 2\n}\n\n ```\n\n### Response Structure\n\nA successful PUT request typically returns one of the following HTTP status codes:\n\n- **200 OK**: The request was successful, and the product was updated.\n    \n- **201 Created**: The request was successful, and a new resource was created as a result of the update.\n    \n- **204 No Content**: The request was successful, but there is no content to return.\n    \n\nEnsure that the request body adheres to the specified format to avoid errors during the update process."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete data",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful DELETE request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 202, 204]);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/product/26",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"product",
+								"26"
+							]
+						},
+						"description": "## DELETE Product by ID\n\nThis is a **DELETE** request used to delete a product identified by its unique ID.\n\n### Endpoint\n\n```\nhttp://localhost:8080/api/product/{id}\n\n ```\n\n### Path Parameter\n\n- **id** (required): The unique identifier of the product to be deleted.\n    \n\n### Expected Response\n\nA successful DELETE request typically returns a `204 No Content` response code, indicating that the product has been successfully deleted."
+					},
+					"response": []
+				},
+				{
+					"name": "All Products",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.status).to.equal(200);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Response time is less than 200ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Validate the response schema for the product object\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"    \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.all.keys('id', 'name', 'description', 'price', 'category', 'stock');\r",
+									"    \r",
+									"    pm.expect(responseData.id).to.be.a('string');\r",
+									"    pm.expect(responseData.name).to.be.a('string').and.to.have.lengthOf.at.least(1);\r",
+									"    pm.expect(responseData.description).to.be.a('string').and.to.have.lengthOf.at.least(1);\r",
+									"    pm.expect(responseData.price).to.be.a('number').and.to.be.at.least(0);\r",
+									"    pm.expect(responseData.category).to.be.a('string').and.to.have.lengthOf.at.least(1);\r",
+									"    pm.expect(responseData.stock).to.be.a('number').and.to.be.at.least(0);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Product ID is a positive integer\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"    \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData.productId).to.exist;\r",
+									"    pm.expect(responseData.productId).to.be.a('number').and.to.be.above(0);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Product name is a non-empty string\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"\r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData.productName).to.exist.and.to.be.a('string').and.to.have.lengthOf.at.least(1, \"Product name should not be empty\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/product",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"product"
+							]
+						},
+						"description": "# Get All Products\n\nThis API allows you to retrieve all the products available in the inventory. By sending a GET request to the endpoint, you will receive a list of products along with their details."
+					},
+					"response": []
+				},
+				{
+					"name": "Product by ID",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/product/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"product",
+								"1"
+							]
+						},
+						"description": "## Get Product Details\n\nThis endpoint retrieves the details of a specific product identified by its unique ID.\n\n### Request\n\n- **Method**: GET\n    \n- **URL**: `http://localhost:8080/api/product/{id}`\n    \n- **Path Parameter**:\n    \n    - `id` (integer): The unique identifier of the product you wish to retrieve. In this example, the ID is `1`.\n        \n\n### Response\n\nThe response will contain the product details, including attributes such as name, description, price, and availability status.\n\nMake sure to handle cases where the product ID does not exist, as the response may indicate that the requested resource could not be found.\n\n**Method:** GET  \n**URL:** `http://localhost:8080/api/product/{id}`\n\n#### Purpose\n\nThis endpoint retrieves detailed information about a specific product identified by its unique ID. It is useful for clients that need to display product details or perform further operations based on the product's data.\n\n#### Request Format\n\nThis endpoint does not require a request body. The product ID should be included in the URL path as follows:\n\n- `{id}`: The unique identifier of the product (e.g., `1`).\n    \n\n#### Response Structure\n\nUpon a successful request, the server will return a JSON object containing the product details. The structure of the response may include the following fields:\n\n- `id`: The unique identifier of the product.\n    \n- `name`: The name of the product.\n    \n- `description`: A detailed description of the product.\n    \n- `price`: The price of the product.\n    \n- `category`: The category under which the product falls.\n    \n- `stock`: The available stock quantity for the product.\n    \n\n#### Expected Status Codes\n\n- **200 OK**: The request was successful, and the product details are returned.\n    \n- **404 Not Found**: The product with the specified ID does not exist.\n    \n- **500 Internal Server Error**: An unexpected error occurred on the server.\n    \n\nThis endpoint is essential for applications that need to fetch and display product information dynamically."
+					},
+					"response": []
+				},
+				{
+					"name": "Search product by name",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/product/search?name=Vanilla Cream Puff",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"product",
+								"search"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "Vanilla Cream Puff"
+								}
+							]
+						},
+						"description": "## Search for Products\n\nThis endpoint allows users to search for products by name. It retrieves a list of products that match the specified search criteria.\n\n### Request Parameters\n\n- **name** (query parameter, required): The name of the product to search for. This parameter is used to filter the results based on the product's name. In this example, the query is searching for products with the name \"Vanilla Cream Puff\".\n    \n\n### Expected Response\n\nThe response will contain a list of products that match the search criteria. Each product in the response will typically include details such as:\n\n- Product ID\n    \n- Name\n    \n- Description\n    \n- Price\n    \n- Availability status\n    \n\n### Notes\n\n- Ensure that the product name is URL-encoded if it contains special characters.\n    \n- The search is case-insensitive and may return multiple results if there are products with similar names."
+					},
+					"response": []
+				},
+				{
+					"name": "Products by category",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/product/by-category/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"product",
+								"by-category",
+								"1"
+							]
+						},
+						"description": "### Get Products by Category\n\nThis endpoint retrieves a list of products that belong to a specific category identified by the category ID.\n\n#### Request\n\n- **Method**: GET\n    \n- **URL**: `http://localhost:8080/api/product/by-category/{categoryId}`\n    \n\n#### Path Parameter\n\n- `categoryId` (integer): The ID of the category for which products are being requested. In this example, the category ID is `1`.\n    \n\n#### Response\n\nUpon a successful request, the response will contain a list of products associated with the specified category. The structure of the response typically includes details about each product, such as product ID, name, description, price, and availability.\n\n#### Notes\n\n- Ensure that the category ID provided in the request is valid and exists in the database.\n    \n- The response may vary based on the products available in the specified category.\n    \n- If no products are found for the given category ID, an empty list will be returned."
+					},
+					"response": []
+				},
+				{
+					"name": "Product by Supplier",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/product/by-supplier/2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"product",
+								"by-supplier",
+								"2"
+							]
+						},
+						"description": "## API Endpoint: Get Products by Supplier\n\n### Request\n\n- **Method**: GET\n    \n- **URL**: `http://localhost:8080/api/product/by-supplier/{supplierId}`\n    \n\n### Description\n\nThis endpoint retrieves a list of products associated with a specific supplier identified by the `supplierId` path parameter.\n\n### Path Parameters\n\n- **supplierId** (integer): The unique identifier of the supplier whose products are to be fetched. In this example, the supplier ID is `2`.\n    \n\n### Response\n\nThe response will contain a list of products related to the specified supplier. Each product object typically includes details such as product ID, name, description, price, and any other relevant attributes.\n\n### Important Headers\n\nNo specific headers are required for this request. However, standard headers like `Accept` and `Content-Type` may be included to specify the desired response format (e.g., JSON).\n\n### Example Response\n\n``` json\n[\n    {\n        \"productId\": 1,\n        \"name\": \"Product A\",\n        \"description\": \"Description of Product A\",\n        \"price\": 29.99\n    },\n    {\n        \"productId\": 2,\n        \"name\": \"Product B\",\n        \"description\": \"Description of Product B\",\n        \"price\": 39.99\n    }\n]\n\n ```"
+					},
+					"response": []
+				},
+				{
+					"name": "low stock products",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/product/low-stock",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"product",
+								"low-stock"
+							]
+						},
+						"description": "### API Endpoint: Get Low Stock Products\n\n#### Purpose\n\nThis endpoint retrieves a list of products that are currently low in stock from the inventory. It is useful for inventory management and helps in identifying products that may need to be reordered.\n\n#### Request Format\n\n- **Method**: GET\n    \n- **URL**: `http://localhost:8080/api/product/low-stock`\n    \n- **Request Body**: None\n    \n    - This endpoint does not require any parameters in the request body.\n        \n\n#### Response Structure\n\nThe response will contain a JSON object with the following structure:\n\n- **status**: (string) Indicates the success or failure of the request.\n    \n- **data**: (array) An array of product objects, each containing:\n    \n    - **id**: (string) The unique identifier of the product.\n        \n    - **name**: (string) The name of the product.\n        \n    - **stockLevel**: (integer) The current stock level of the product.\n        \n    - **threshold**: (integer) The minimum stock level before the product is considered low in stock.\n        \n\n#### Example Response\n\n``` json\n{\n  \"status\": \"success\",\n  \"data\": [\n    {\n      \"id\": \"prod_123\",\n      \"name\": \"Product A\",\n      \"stockLevel\": 5,\n      \"threshold\": 10\n    },\n    {\n      \"id\": \"prod_456\",\n      \"name\": \"Product B\",\n      \"stockLevel\": 3,\n      \"threshold\": 10\n    }\n  ]\n}\n\n ```\n\nThis structure allows clients to easily understand which products are low in stock and take appropriate actions."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Category",
+			"item": [
+				{
+					"name": "all categories",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/category",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"category"
+							]
+						},
+						"description": "## API Description\n\nThis API allows you to view all the categories listed.\n\n### Request\n\n- **Method**: GET\n    \n- **URL**: `http://localhost:8080/api/category`\n    \n- **Query Parameters**: You can use query parameters to specify the resource you want data on (e.g., `id=1`).\n    \n\n### Response\n\n- **Status Code**: 200 OK\n    \n- **Response Body**: The response will typically include JSON data representing the categories."
+					},
+					"response": []
+				},
+				{
+					"name": "categories by id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/category/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"category",
+								"1"
+							]
+						},
+						"description": "## API Request Description\n\nThis is a **GET** request to retrieve information about a specific category based on the provided ID. The endpoint used is `http://localhost:8080/api/category/{id}`, where `{id}` should be replaced with the desired category ID (in this case, `1`).\n\n### Request Parameters\n\n- **Path Parameter:**\n    \n    - `id` (integer): The unique identifier of the category you want to view.\n        \n\n### Response\n\nA successful request will return a `200 OK` status and will include a response body containing details about the requested category, typically in JSON format."
+					},
+					"response": []
+				},
+				{
+					"name": "category by name",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/category/search?name=Cake",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"category",
+								"search"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "Cake"
+								}
+							]
+						},
+						"description": "### API Request Description\n\nThis is a **GET** request used to retrieve data from the specified endpoint.\n\n#### Request Parameters\n\n- **name** (string): The name of the category you want to search for. In this example, the value is `Cake`.\n    \n\n#### Expected Response\n\nA successful GET response will return a `200 OK` status. The response body is expected to include relevant data in JSON format, which will provide details about the category that matches the search criteria.\n\n#### Notes\n\n- Ensure that the `name` parameter is properly encoded if it contains special characters.\n    \n- This endpoint is useful for searching categories based on their names."
+					},
+					"response": []
+				},
+				{
+					"name": "Create Category",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful POST request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": " {\n        \n        \"name\": \"Cake\",\n        \"description\": \"Red Velvet Cake\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/category",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"category"
+							]
+						},
+						"description": "### API Request Description\n\nThis is a **POST** request to the `/api/category` endpoint, which is used to create a new category in the system. The purpose of this request is to submit category data that will be stored in the database.\n\n#### Request Body Format\n\nThe request body must be in JSON format and should include the following parameters:\n\n- **name** (string): The name of the category (e.g., \"Cake\").\n    \n- **description** (string): A brief description of the category (e.g., \"Red Velvet Cake\").\n    \n\n**Example Request Body:**\n\n``` json\n{\n  \"name\": \"Cake\",\n  \"description\": \"Red Velvet Cake\"\n}\n\n ```\n\n#### Expected Response\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code, indicating that the category has been successfully created. The response may include details about the newly created category.\n\n#### Important Notes\n\n- Ensure that you include any necessary authentication tokens in the headers of your request.\n    \n- Set the `Content-Type` header to `application/json` to indicate that you are sending JSON data."
+					},
+					"response": []
+				},
+				{
+					"name": "Update category",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful PUT request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 204]);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n        \"name\": \"Cream Puff – Exclusive\",\n        \"description\": \"Rocher & Pistachio\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/category/3",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"category",
+								"3"
+							]
+						},
+						"description": "## PUT Request to Update Category\n\nThis is a **PUT** request used to update an existing category identified by its ID in the URL. In this case, the endpoint is `http://localhost:8080/api/category/3`, where `3` is the ID of the category being updated.\n\n### Request Body\n\nThe request body should be in JSON format and includes the following parameters:\n\n- **name** (string): The name of the category (e.g., \"Cream Puff – Exclusive\").\n    \n- **description** (string): A brief description of the category (e.g., \"Rocher & Pistachio\").\n    \n\n### Expected Response\n\nA successful PUT request typically returns one of the following HTTP status codes:\n\n- `200 OK`: The request was successful, and the category was updated.\n    \n- `201 Created`: The request was successful, and a new resource was created.\n    \n- `204 No Content`: The request was successful, but there is no content to return.\n    \n\nThis method is commonly used when you want to modify an existing entity that was previously created with a POST request."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete data",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful DELETE request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 202, 204]);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/category/3",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"category",
+								"3"
+							]
+						},
+						"description": "\n### DELETE Request to Remove Data\n\nThis is a **DELETE** request used to remove a specific entity identified by its unique identifier from the system. \n\n#### Request Parameters\n- **id**: The unique identifier of the entity to be deleted. This is passed as a query parameter in the URL (e.g., `?id=1`).\n\n#### Expected Response\nA successful DELETE request typically returns one of the following HTTP status codes:\n- **200 OK**: The request has succeeded, and the entity has been successfully deleted.\n- **202 Accepted**: The request has been accepted for processing, but the processing has not been completed.\n- **204 No Content**: The server successfully processed the request, and is not returning any content.\n\n#### Notes\n- Ensure that the identifier provided corresponds to an existing entity; otherwise, the request may result in an error.\n- Use this request with caution, as it will permanently remove data from the system.\n"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Supplier",
+			"item": [
+				{
+					"name": "All Supplier",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/supplier",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"supplier"
+							]
+						},
+						"description": "## GET Request to Retrieve Supplier Data\n\nThis is a **GET** request used to retrieve data from the **/api/supplier** endpoint.\n\n### Request Parameters\n\nYou can include query parameters to specify the resource you want data on. For example:\n\n- `id`: The unique identifier for the supplier. (e.g., `id=1`)\n    \n\n### Expected Response\n\nA successful response will return a **200 OK** status. The response body will typically contain:\n\n- **JSON data** representing the supplier information.\n    \n\n### Notes\n\n- Ensure that the correct query parameters are provided to retrieve the desired supplier data.\n    \n- The response format may vary based on the implementation but is generally in JSON."
+					},
+					"response": []
+				},
+				{
+					"name": "Supplier by id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/supplier/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"supplier",
+								"1"
+							]
+						},
+						"description": "### GET Supplier by ID\n\nThis is a **GET** request used to retrieve information about a specific supplier from the API. The request is made to the endpoint `http://localhost:8080/api/supplier/1`, where `1` represents the unique identifier (ID) of the supplier you wish to access.\n\n#### Request Parameters\n\nThere is no request body for a GET request. However, you can specify the resource you want data on using the URL path. In this case, the supplier ID is provided directly in the URL.\n\n#### Expected Response\n\nA successful response will return a **200 OK** status code. The response body will typically contain data in JSON format, structured to provide details about the supplier. The exact structure of the response body may include fields such as:\n\n- `id`: The unique identifier of the supplier.\n    \n- `name`: The name of the supplier.\n    \n- `contact`: Contact information for the supplier.\n    \n- `address`: The physical address of the supplier.\n    \n\nEnsure to check the API documentation for the specific fields returned in the response for the supplier resource."
+					},
+					"response": []
+				},
+				{
+					"name": "create supplier",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful POST request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"companyName\": \"Golden Flour Supplies\",\n  \"contactPerson\": \"Tan Wei Ming\",\n  \"email\": \"weiming@goldenflour.com\",\n  \"phone\": \"017-8886655\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/supplier",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"supplier"
+							]
+						},
+						"description": "## Supplier API - Create Supplier\n\nThis is a **POST** request to the `/api/supplier` endpoint, used to create a new supplier in the system. The purpose of this request is to submit supplier information that will be stored in the database.\n\n### Request Body Format\n\nThe request body must be in JSON format and should include the following parameters:\n\n- **companyName** (string): The name of the supplier company.\n    \n- **contactPerson** (string): The name of the contact person at the supplier company.\n    \n- **email** (string): The email address of the contact person.\n    \n- **phone** (string): The phone number of the contact person.\n    \n\n#### Example Request Body\n\n``` json\n{\n  \"companyName\": \"Golden Flour Supplies\",\n  \"contactPerson\": \"Tan Wei Ming\",\n  \"email\": \"weiming@goldenflour.com\",\n  \"phone\": \"017-8886655\"\n}\n\n ```\n\n### Expected Response\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code, indicating that the supplier has been successfully created. The response may also include the details of the created supplier or a confirmation message.\n\nEnsure that all required fields are provided in the request body to avoid validation errors."
+					},
+					"response": []
+				},
+				{
+					"name": "update supplier",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful PUT request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 204]);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"companyName\": \"Golden Flour Supplies\",\n  \"contactPerson\": \"Tan Mei Ling\",\n  \"email\": \"weiming@goldenflour.com\",\n  \"phone\": \"018-9997766\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/supplier/5",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"supplier",
+								"5"
+							]
+						},
+						"description": "### PUT Request to Update Supplier Information\n\nThis is a **PUT** request used to update an existing supplier's information in the system. The request is sent to the URL `http://localhost:8080/api/supplier/5`, where `5` is the identifier of the supplier being updated.\n\n#### Purpose\n\nThe purpose of this request is to modify the details of a specific supplier. After initially creating a supplier with a **POST** request, you may need to update their information using this **PUT** request.\n\n#### Request Body Format\n\nThe request body must be in JSON format and should include the following fields:\n\n- `companyName` (string): The name of the supplier's company.\n    \n- `contactPerson` (string): The name of the contact person at the supplier's company.\n    \n- `email` (string): The email address for contacting the supplier.\n    \n- `phone` (string): The phone number of the supplier.\n    \n\n**Example Request Body:**\n\n``` json\n{\n  \"companyName\": \"Golden Flour Supplies\",\n  \"contactPerson\": \"Tan Mei Ling\",\n  \"email\": \"weiming@goldenflour.com\",\n  \"phone\": \"018-9997766\"\n}\n\n ```\n\n#### Expected Response\n\nA successful **PUT** request typically returns one of the following HTTP status codes:\n\n- `200 OK`: The request was successful, and the supplier's information has been updated.\n    \n- `201 Created`: The request was successful, and a new resource has been created as a result of the update.\n    \n- `204 No Content`: The request was successful, but there is no content to return.\n    \n\n#### Headers\n\nEnsure to include the following headers in your request:\n\n- `Content-Type: application/json`: This header indicates that the request body is in JSON format."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete data",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful DELETE request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 202, 204]);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/supplier/5",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"supplier",
+								"5"
+							]
+						},
+						"description": "### DELETE Supplier\n\nThis is a **DELETE** request used to remove a specific supplier resource identified by its unique identifier from the system. The purpose of this request is to delete data that was previously created via a POST request.\n\n#### Request Format\n\n- **URL**: `http://localhost:8080/api/supplier/{id}`\n    \n    - Replace `{id}` with the unique identifier of the supplier you wish to delete (e.g., `5`).\n        \n\n#### Request Body\n\n- No request body is required for this DELETE request.\n    \n\n#### Response Structure\n\nA successful DELETE request typically returns one of the following HTTP status codes:\n\n- `200 OK`: The request was successful, and the resource was deleted.\n    \n- `202 Accepted`: The request has been accepted for processing, but the processing has not been completed.\n    \n- `204 No Content`: The request was successful, and there is no content to return.\n    \n\n#### Important Notes\n\n- Ensure that you have the necessary authentication headers included in your request to authorize the deletion.\n    \n- Common headers may include:\n    \n    - `Authorization`: Bearer token or other authentication methods.\n        \n    - `Content-Type`: Typically not required for DELETE requests, but may be necessary for some APIs.\n        \n\nMake sure to check the API documentation for any additional requirements or specific headers that may be needed."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Inventory Transaction",
+			"item": [
+				{
+					"name": "All Transactions",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/inventory/transactions",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"inventory",
+								"transactions"
+							]
+						},
+						"description": "## Inventory Transactions GET Request\n\nThis is a **GET** request to the endpoint `http://localhost:8080/api/inventory/transactions`.\n\n### Request Details\n\n- **Method**: GET\n    \n- **Endpoint**: `/api/inventory/transactions`\n    \n- **Request Body**: There is no request body for a GET request. However, you can utilize query parameters to specify the resource you want data on (e.g., `id=1`).\n    \n\n### Expected Response\n\nA successful GET response will return a `200 OK` status. The response body will typically include data in JSON format, representing the inventory transactions."
+					},
+					"response": []
+				},
+				{
+					"name": "Transaction by product id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/inventory/transactions/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"inventory",
+								"transactions",
+								"1"
+							]
+						},
+						"description": "### Request Description\n\nThis is a **GET** request to the endpoint `http://localhost:8080/api/inventory/transactions/1`.\n\n#### Parameters\n\n- **Path Parameter**:\n    \n    - `id`: The identifier for the transaction you want to retrieve. In this example, the value is `1`.\n        \n\n#### Expected Response\n\nA successful response will return a `200 OK` status. The response body is expected to be in **JSON** format, containing details about the transaction associated with the provided ID."
+					},
+					"response": []
+				},
+				{
+					"name": "StockIn",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful POST request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/inventory/stockin/2?quantity=3",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"inventory",
+								"stockin",
+								"2"
+							],
+							"query": [
+								{
+									"key": "quantity",
+									"value": "3"
+								}
+							]
+						},
+						"description": "## Inventory Stock In Request\n\nThis is a **POST** request to the endpoint `http://localhost:8080/api/inventory/stockin/2` with a query parameter `quantity=3`. The purpose of this request is to add stock to the inventory for a specific item identified by the ID `2`.\n\n### Request Body Format\n\nThe request body should be in JSON format, containing the necessary details for the stock addition.\n\n### Expected Request Body\n\n- **quantity** (integer): The number of items to be added to the inventory.\n    \n\n### Response Structure\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code along with a JSON response that may include:\n\n- **status** (string): Indicates the success or failure of the operation.\n    \n- **message** (string): Provides additional information about the request outcome.\n    \n- **data** (object): Contains the details of the updated inventory item.\n    \n\n### Important Notes\n\n- Ensure that the request includes the necessary authentication headers as required by the API.\n    \n- Verify that the `Content-Type` header is set to `application/json` for the request body."
+					},
+					"response": []
+				},
+				{
+					"name": "StockOut",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful POST request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"name\": \"Add your name in the body\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/inventory/stockout/27?quantity=12",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"inventory",
+								"stockout",
+								"27"
+							],
+							"query": [
+								{
+									"key": "quantity",
+									"value": "12"
+								}
+							]
+						},
+						"description": "### POST Request to Stock Out Inventory\n\nThis is a **POST** request to the endpoint `http://localhost:8080/api/inventory/stockout/27` with a query parameter `quantity` set to `12`.\n\n#### Request Body\n\nThe request submits JSON data in the following format:\n\n``` json\n{\n  \"name\": \"Add your name in the body\"\n}\n\n ```\n\n- **name**: (string) This parameter should contain the name to be added in the request body.\n    \n\n#### Expected Response\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code, indicating that the stock out operation was successful."
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
