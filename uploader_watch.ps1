@@ -245,16 +245,39 @@ function Get-CandidateFiles { param([string]$Base,[object]$Cfg)
   $items | Where-Object { (Test-AllowedExt -Path $_.FullName -Cfg $Cfg) -and (Test-NameMatches -Path $_.FullName -Cfg $Cfg) } |
     ForEach-Object { $_.FullName }
 }
+
+# Generate a non-clobbering destination path by appending " (n)" before the extension
+function Get-UniquePath { param([string]$Dir,[string]$Leaf)
+  $base = [System.IO.Path]::GetFileNameWithoutExtension($Leaf)
+  $ext  = [System.IO.Path]::GetExtension($Leaf)
+  $dest = Join-Path -Path $Dir -ChildPath $Leaf
+  $i = 1
+  while (Test-Path -LiteralPath $dest) {
+    $altLeaf = "{0} ({1}){2}" -f $base, $i, $ext
+    $dest = Join-Path -Path $Dir -ChildPath $altLeaf
+    $i++
+    if ($i -gt 10000) { throw "Unable to compute unique destination for '$Leaf' in '$Dir'" }
+  }
+  return $dest
+}
+
 function Move-Result { param([string[]]$AllFiles,[string[]]$Uploaded,[string[]]$Failed,[string]$SuccessDir,[string]$FailedDir)
   $uploadedSet = @{}; foreach ($n in $Uploaded) { $uploadedSet[[string]$n] = $true }
   $failedSet   = @{}; foreach ($n in $Failed)   { $failedSet[[string]$n]   = $true }
   foreach ($p in $AllFiles) {
     $leaf = [System.IO.Path]::GetFileName($p)
-    if     ($uploadedSet.ContainsKey($leaf)) { $dest = Join-Path -Path $SuccessDir -ChildPath $leaf }
-    elseif ($failedSet.ContainsKey($leaf))   { $dest = Join-Path -Path $FailedDir  -ChildPath $leaf }
-    else                                     { $dest = Join-Path -Path $FailedDir  -ChildPath $leaf }
-    try { Move-Item -LiteralPath $p -Destination $dest -Force -Confirm:$false; Write-Log ("moved :: {0} -> {1}" -f $p,$dest) }
-    catch { Write-Log ("move-failed :: {0} => {1} :: {2}" -f $p,$dest,$_.Exception.Message) "ERROR" }
+    if     ($uploadedSet.ContainsKey($leaf)) { $destDir = $SuccessDir }
+    elseif ($failedSet.ContainsKey($leaf))   { $destDir = $FailedDir  }
+    else                                     { $destDir = $FailedDir  }
+
+    # Pick a non-overwriting destination path
+    try {
+      $dest = Get-UniquePath -Dir $destDir -Leaf $leaf
+      Move-Item -LiteralPath $p -Destination $dest -Confirm:$false
+      Write-Log ("moved :: {0} -> {1}" -f $p,$dest)
+    } catch {
+      Write-Log ("move-failed :: {0} => {1} :: {2}" -f $p, (Join-Path $destDir $leaf), $_.Exception.Message) "ERROR"
+    }
   }
 }
 
