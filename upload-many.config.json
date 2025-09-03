@@ -3,7 +3,7 @@
   "successDir": "processed",
   "failedDir": "failed",
 
-  "serverBase": "http://localhost:3000",
+  "serverBase": "https://puma-event.vercel.app/admin",
   "authorizePath": "/api/media/authorize",
   "authToken": "",
 
