@@ -3,12 +3,12 @@
   "successDir": "processed",
   "failedDir": "failed",
 
-  "serverBase": "https://puma-event.vercel.app/admin",
+  "serverBase": "http://localhost:3000",
   "authorizePath": "/api/media/authorize",
   "authToken": "",
 
   "includeExt": [".mp4",".mov",".m4v",".webm",".avi",".mkv",".jpg",".jpeg",".png"],
-  "filenamePattern": "^(?<id>[A-Z0-9]{3}-[A-Z0-9]{3})(?:[ _()\\-].+)?\\.[^.]+$",
+  "filenamePattern": "^(?<id>\\d{4})(?:[ _()\\-].+)?\\.[^.]+$",
   "filenamePatternFlags": "i",
   "recursive": false,
 
