@@ -134,48 +134,95 @@ function Put-To-VercelBlob {
   $req.Headers["Authorization"] = "Bearer $ClientToken"
   $req.Headers["x-content-type"] = $ContentType
 
-  $stream = $req.GetRequestStream()
-  $fs = [System.IO.File]::OpenRead($FilePath)
-  try {
-    $buf = New-Object byte[] 65536
-    while (($read = $fs.Read($buf,0,$buf.Length)) -gt 0) { $stream.Write($buf,0,$read) }
-  } finally { $fs.Close(); $stream.Close() }
+  # Small retry loop for transient timeouts/network blips
+  $maxAttempts = 3
+  for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
+    $req = [System.Net.HttpWebRequest]::Create($url)
+    $req.Method = "PUT"
+    $req.Headers["Authorization"] = "Bearer $ClientToken"
+    $req.Headers["x-content-type"] = $ContentType
 
-  try {
-    $resp = $req.GetResponse()
-    $s = $resp.GetResponseStream()
-    $sr = New-Object System.IO.StreamReader($s)
-    $body = $sr.ReadToEnd()
-    $sr.Close(); $s.Close(); $resp.Close()
+    # Networking/tuning
+    $req.KeepAlive = $true
+    $req.ProtocolVersion = [Version]"1.1"
+    $req.AllowWriteStreamBuffering = $false
+    $req.SendChunked = $true   # enable chunked transfer; do not set ContentLength
 
-    $urlOut = $null
-    if (-not [string]::IsNullOrWhiteSpace($body)) {
-      try {
-        $json = $body | ConvertFrom-Json
-        if ($json -and $json.PSObject.Properties.Match('url').Count -gt 0) {
-          $urlOut = [string]$json.url
-        }
-      } catch { }
-    }
+    # Avoid 100-continue stalls
+    [System.Net.ServicePointManager]::Expect100Continue = $false
+    $req.ServicePoint.Expect100Continue = $false
 
-    # NEW: Notify API about completion
-    if ($urlOut) {
-      try {
-        Notify-UploadCompletion -Cfg $Cfg -BlobUrl $urlOut -UserId $UserId -OriginalName $OriginalName -ContentType $ContentType
-      } catch {
-        Write-Log ("Failed to notify upload completion: {0}" -f $_.Exception.Message) "ERROR"
+    # Increase timeouts for large uploads
+    $req.Timeout = 30 * 60 * 1000          # 30 minutes
+    $req.ReadWriteTimeout = 30 * 60 * 1000 # 30 minutes
+
+    # Optionally bypass system proxy if it interferes
+    try { $req.Proxy = [System.Net.GlobalProxySelection]::GetEmptyWebProxy() } catch {}
+
+    $stream = $null
+    $fs = $null
+    try {
+      $stream = $req.GetRequestStream()
+      $fs = [System.IO.File]::OpenRead($FilePath)
+
+      # Larger chunks (e.g., 256 KB) for better throughput
+      $buf = New-Object byte[] (256 * 1024)
+      while (($read = $fs.Read($buf,0,$buf.Length)) -gt 0) {
+        $stream.Write($buf,0,$read)
       }
+    } finally {
+      if ($fs) { $fs.Close() }
+      if ($stream) { $stream.Close() }
     }
 
-    return @{ ok = $true; url = $urlOut }
-  } catch [System.Net.WebException] {
-    $resp = $_.Exception.Response
-    if ($resp -ne $null) {
-      $s = $resp.GetResponseStream(); $sr = New-Object System.IO.StreamReader($s); $body = $sr.ReadToEnd(); $sr.Close(); $s.Close(); $resp.Close()
-      Write-Log ("Blob PUT error: {0}" -f $body) "ERROR"
-      return @{ ok = $false; error = $body }
-    } else {
-      Write-Log ("Blob PUT exception: {0}" -f $_.Exception.Message) "ERROR"
+    try {
+      $resp = $req.GetResponse()
+      $s = $resp.GetResponseStream()
+      $sr = New-Object System.IO.StreamReader($s)
+      $body = $sr.ReadToEnd()
+      $sr.Close(); $s.Close(); $resp.Close()
+
+      $urlOut = $null
+      if (-not [string]::IsNullOrWhiteSpace($body)) {
+        try {
+          $json = $body | ConvertFrom-Json
+          if ($json -and $json.PSObject.Properties.Match('url').Count -gt 0) {
+            $urlOut = [string]$json.url
+          }
+        } catch { }
+      }
+
+      # Notify API about completion
+      if ($urlOut) {
+        try {
+          Notify-UploadCompletion -Cfg $Cfg -BlobUrl $urlOut -UserId $UserId -OriginalName $OriginalName -ContentType $ContentType
+        } catch {
+          Write-Log ("Failed to notify upload completion: {0}" -f $_.Exception.Message) "ERROR"
+        }
+      }
+
+      return @{ ok = $true; url = $urlOut }
+    } catch [System.Net.WebException] {
+      $we = $_.Exception
+      $isTimeout = ($we.Status -eq [System.Net.WebExceptionStatus]::Timeout)
+      $resp = $we.Response
+
+      if ($resp -ne $null) {
+        $s = $resp.GetResponseStream(); $sr = New-Object System.IO.StreamReader($s); $body = $sr.ReadToEnd(); $sr.Close(); $s.Close(); $resp.Close()
+        Write-Log ("Blob PUT error (attempt {0}/{1}): {2}" -f $attempt,$maxAttempts,$body) "ERROR"
+      } else {
+        Write-Log ("Blob PUT exception (attempt {0}/{1}): {2}" -f $attempt,$maxAttempts,$we.Message) "ERROR"
+      }
+
+      if ($attempt -lt $maxAttempts -and $isTimeout) {
+        Start-Sleep -Seconds ([int][Math]::Pow(2,$attempt)) # backoff 2s, 4s
+        continue
+      }
+
+      return @{ ok = $false; error = $we.Message }
+    } catch {
+      # Non-WebException error; don't retry unless more handling is desired
+      Write-Log ("Blob PUT fatal exception (attempt {0}/{1}): {2}" -f $attempt,$maxAttempts,$_.Exception.Message) "ERROR"
       return @{ ok = $false; error = $_.Exception.Message }
     }
   }
@@ -232,11 +279,36 @@ function Test-NameMatches { param([string]$Path,[object]$Cfg)
   }
   return [System.Text.RegularExpressions.Regex]::IsMatch($name,[string]$Cfg.filenamePattern,$options)
 }
-function Test-FileReady { param([string]$Path,[int]$TimeoutSec=600,[int]$PollMs=300)
+function Test-FileReady { param([string]$Path,[int]$TimeoutSec=600,[int]$PollMs=300,[int]$StableMs=5000)
   $sw = [System.Diagnostics.Stopwatch]::StartNew()
+  $lastSize = -1
+  $lastWrite = [DateTime]::MinValue
+  $stableStart = $null
+
   while ($sw.Elapsed.TotalSeconds -lt $TimeoutSec) {
-    try { $fs = [System.IO.FileStream]::new($Path,[System.IO.FileMode]::Open,[System.IO.FileAccess]::Read,[System.IO.FileShare]::None); $fs.Close(); return $true }
-    catch { Start-Sleep -Milliseconds $PollMs }
+    try {
+      # Try to open exclusively to ensure no other process is writing
+      $fs = [System.IO.FileStream]::new($Path,[System.IO.FileMode]::Open,[System.IO.FileAccess]::Read,[System.IO.FileShare]::None)
+      $fs.Close()
+
+      # Check for stability: size and last write time unchanged for StableMs
+      $fi = [System.IO.FileInfo]::new($Path)
+      $size = $fi.Length
+      $lw   = $fi.LastWriteTimeUtc
+
+      if ($size -eq $lastSize -and $lw -eq $lastWrite) {
+        if ($null -eq $stableStart) { $stableStart = Get-Date }
+        if ((New-TimeSpan -Start $stableStart -End (Get-Date)).TotalMilliseconds -ge $StableMs) { return $true }
+      } else {
+        $stableStart = $null
+      }
+
+      $lastSize = $size
+      $lastWrite = $lw
+    } catch {
+      # file is still locked or transient; just wait
+    }
+    Start-Sleep -Milliseconds $PollMs
   }
   return $false
 }
@@ -265,6 +337,12 @@ function Move-Result { param([string[]]$AllFiles,[string[]]$Uploaded,[string[]]$
   $uploadedSet = @{}; foreach ($n in $Uploaded) { $uploadedSet[[string]$n] = $true }
   $failedSet   = @{}; foreach ($n in $Failed)   { $failedSet[[string]$n]   = $true }
   foreach ($p in $AllFiles) {
+    # Skip if already moved/deleted by another process/run
+    if (-not (Test-Path -LiteralPath $p -PathType Leaf)) {
+      Write-Log ("skip-move (missing): {0}" -f $p)
+      continue
+    }
+
     $leaf = [System.IO.Path]::GetFileName($p)
     if     ($uploadedSet.ContainsKey($leaf)) { $destDir = $SuccessDir }
     elseif ($failedSet.ContainsKey($leaf))   { $destDir = $FailedDir  }
@@ -300,7 +378,7 @@ $paths = @(Get-CandidateFiles -Base $base -Cfg $cfg)
 if (-not $paths -or $paths.Count -eq 0) { Write-Log "No files to upload (check ext/pattern)"; exit 0 }
 Write-Log ("candidates={0}" -f $paths.Count)
 
-$ready = @(); foreach ($p in $paths) { if (Test-FileReady -Path $p -TimeoutSec 600 -PollMs 300) { $ready += $p } }
+$ready = @(); foreach ($p in $paths) { if (Test-FileReady -Path $p -TimeoutSec 600 -PollMs 300 -StableMs 5000) { $ready += $p } }
 if (-not $ready -or $ready.Count -eq 0) { Write-Log "No files ready to upload"; exit 0 }
 Write-Log ("ready={0} -> uploading..." -f $ready.Count)
 
