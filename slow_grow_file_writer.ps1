@@ -1,7 +1,7 @@
 # PowerShell: slow-grow.ps1
 param(
-  [string]$Path = "C:\Media\incoming\4865.mp4",
-  [int]$TotalMB = 100,   # total size to write
+  [string]$Path = "C:\Media\incoming\30001.mov",
+  [int]$TotalMB = 10,   # total size to write
   [int]$ChunkKB = 1024,  # size of each write
   [int]$DelayMs = 300    # delay between writes
 )

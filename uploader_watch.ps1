@@ -374,7 +374,26 @@ Ensure-Dir -Dir $FailedDir
 
 Write-Log ("manual-upload: start (PID={0}; base={1})" -f $PID,$base)
 
+# First, check for files in the main directory
 $paths = @(Get-CandidateFiles -Base $base -Cfg $cfg)
+
+# If no files in main directory, check failed directory for retry
+if (-not $paths -or $paths.Count -eq 0) {
+  Write-Log "No files in main directory, checking failed directory for retry..."
+  $failedPaths = @(Get-CandidateFiles -Base $FailedDir -Cfg $cfg)
+  
+  if ($failedPaths -and $failedPaths.Count -gt 0) {
+    Write-Log ("Found {0} files in failed directory for retry" -f $failedPaths.Count)
+    $paths = $failedPaths
+    $isRetryMode = $true
+  } else {
+    Write-Log "No files to upload (check ext/pattern) in both main and failed directories"
+    exit 0
+  }
+} else {
+  $isRetryMode = $false
+}
+
 if (-not $paths -or $paths.Count -eq 0) { Write-Log "No files to upload (check ext/pattern)"; exit 0 }
 Write-Log ("candidates={0}" -f $paths.Count)
 
@@ -421,5 +440,35 @@ foreach ($p in $ready) {
   }
 }
 
-Move-Result -AllFiles $ready -Uploaded $uploaded -Failed $failed -SuccessDir $SuccessDir -FailedDir $FailedDir
-Write-Log ("manual-upload: done (uploaded={0}; failed={1})" -f $uploaded.Count,$failed.Count)
+# Handle moving files based on retry mode
+if ($isRetryMode) {
+  # When retrying from failed folder, move successful uploads to success dir
+  # and keep failed ones in failed dir (or move to a "retry-failed" subfolder)
+  foreach ($p in $ready) {
+    if (-not (Test-Path -LiteralPath $p -PathType Leaf)) {
+      Write-Log ("skip-move (missing): {0}" -f $p)
+      continue
+    }
+
+    $leaf = [System.IO.Path]::GetFileName($p)
+    
+    if ($uploaded -contains $leaf) {
+      # Successfully uploaded on retry - move to success dir
+      try {
+        $dest = Get-UniquePath -Dir $SuccessDir -Leaf $leaf
+        Move-Item -LiteralPath $p -Destination $dest -Confirm:$false
+        Write-Log ("retry-success :: {0} -> {1}" -f $p,$dest)
+      } catch {
+        Write-Log ("move-failed :: {0} => {1} :: {2}" -f $p, (Join-Path $SuccessDir $leaf), $_.Exception.Message) "ERROR"
+      }
+    } else {
+      # Failed again on retry - keep in failed dir (or optionally create retry-failed subfolder)
+      Write-Log ("retry-failed :: keeping {0} in failed directory" -f $leaf)
+    }
+  }
+} else {
+  # Normal mode - use existing logic
+  Move-Result -AllFiles $ready -Uploaded $uploaded -Failed $failed -SuccessDir $SuccessDir -FailedDir $FailedDir
+}
+
+Write-Log ("manual-upload: done (uploaded={0}; failed={1}; retry-mode={2})" -f $uploaded.Count,$failed.Count,$isRetryMode)
